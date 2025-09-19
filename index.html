@@ -239,32 +239,64 @@ body.blocked .popup-overlay {
 
             // Daftar rumah sakit beserta koordinat dan nomor WhatsApp
             const hospitals = [
-                {
-                    name: 'RSUD Sanjiwani Gianyar',
-                    lat: -8.5406,
-                    lng: 115.3256,
-                    whatsapp: '6281234567890'
-                },
-                {
-                    name: 'RS Ari Canti',
-                    lat: -8.5462,
-                    lng: 115.2822,
-                    whatsapp: '6282234567890'
-                },
-                {
-                    name: 'RSU Kasih Ibu Saba',
-                    lat: -8.5850,
-                    lng: 115.2870,
-                    whatsapp: '6281334567890'
-                },
-                {
-                    name: 'RSU Ganesha Gianyar',
-                    lat: -8.5300,
-                    lng: 115.3200,
-                    whatsapp: '6281434567890'
-                }
-                // Tambahkan rumah sakit lain sesuai kebutuhan
-            ];
+  {
+    "name": "RSUD Sanjiwani Gianyar",
+    "lat": -8.5406,
+    "lng": 115.3256,
+    "whatsapp": "6281338225311",
+    "type": "Rumah Sakit"
+  },
+  {
+    "name": "RS Ari Canti",
+    "lat": -8.5462,
+    "lng": 115.2822,
+    "whatsapp": "62361974573",
+    "type": "Rumah Sakit"
+  },
+  {
+    "name": "RSU Kasih Ibu Saba",
+    "lat": -8.5850,
+    "lng": 115.2870,
+    "whatsapp": "6281238888800",
+    "type": "Rumah Sakit"
+  },
+  {
+    "name": "RSU Ganesha Gianyar",
+    "lat": -8.5300,
+    "lng": 115.3200,
+    "whatsapp": "6281238888900",
+    "type": "Rumah Sakit"
+  },
+  {
+    "name": "Puskesmas Gianyar I",
+    "lat": -8.5400,
+    "lng": 115.3200,
+    "whatsapp": "6281234567001",
+    "type": "Puskesmas"
+  },
+  {
+    "name": "Puskesmas Denpasar Selatan I",
+    "lat": -8.6841,
+    "lng": 115.2196,
+    "whatsapp": "6281234567002",
+    "type": "Puskesmas"
+  },
+  {
+    "name": "Puskesmas Jakarta Pusat I",
+    "lat": -6.1865,
+    "lng": 106.8347,
+    "whatsapp": "6281234567003",
+    "type": "Puskesmas"
+  },
+  {
+    "name": "RSUP Dr. Cipto Mangunkusumo",
+    "lat": -6.2002,
+    "lng": 106.8451,
+    "whatsapp": "6281234567004",
+    "type": "Rumah Sakit"
+  }
+]
+;
 
             // Fungsi hitung jarak Haversine
             function getDistance(lat1, lng1, lat2, lng2) {
@@ -279,39 +311,55 @@ body.blocked .popup-overlay {
                 return R * c;
             }
 
-            function showNearestHospitals(userLat, userLng) {
+            function showNearestPuskesmas(userLat, userLng) {
+                // Filter hanya puskesmas
+                const puskesmas = hospitals.filter(h => h.type === 'Puskesmas');
+                if (puskesmas.length === 0) {
+                    hospitalList.innerHTML = '<li>Tidak ada data puskesmas.</li>';
+                    return;
+                }
                 // Urutkan berdasarkan jarak terdekat
-                const sorted = hospitals.map(h => ({
+                const sorted = puskesmas.map(h => ({
                     ...h,
                     distance: getDistance(userLat, userLng, h.lat, h.lng)
                 })).sort((a, b) => a.distance - b.distance);
-                hospitalList.innerHTML = sorted.slice(0, 3).map(h =>
-                    `<li><span>${h.name}<br><span style='font-size:0.85em;color:#888;'>${h.distance.toFixed(2)} km</span></span>
-                    <a href='https://wa.me/${h.whatsapp}' class='call-btn' target='_blank' title='WhatsApp ${h.name}'><i class='fab fa-whatsapp'></i></a></li>`
-                ).join('');
+                const nearest = sorted[0];
+                hospitalList.innerHTML = `<li><span>${nearest.name}<br><span style='font-size:0.85em;color:#888;'>${nearest.distance.toFixed(2)} km</span></span>
+                    <a href='https://wa.me/${nearest.whatsapp}' class='call-btn' target='_blank' title='WhatsApp ${nearest.name}'><i class='fab fa-whatsapp'></i></a></li>`;
             }
 
             // Dapatkan lokasi pengguna
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     pos => {
-                        showNearestHospitals(pos.coords.latitude, pos.coords.longitude);
+                        showNearestPuskesmas(pos.coords.latitude, pos.coords.longitude);
                     },
                     err => {
-                        hospitalList.innerHTML = '<li>Gagal mendapatkan lokasi. Tampilkan semua rumah sakit.</li>' +
-                            hospitals.map(h =>
-                                `<li><span>${h.name}</span>
-                                <a href='https://wa.me/${h.whatsapp}' class='call-btn' target='_blank' title='WhatsApp ${h.name}'><i class='fab fa-whatsapp'></i></a></li>`
-                            ).join('');
+                        // Jika gagal dapatkan lokasi, tampilkan semua puskesmas
+                        const puskesmas = hospitals.filter(h => h.type === 'Puskesmas');
+                        if (puskesmas.length === 0) {
+                            hospitalList.innerHTML = '<li>Tidak ada data puskesmas.</li>';
+                        } else {
+                            hospitalList.innerHTML = '<li>Gagal mendapatkan lokasi. Tampilkan semua puskesmas.</li>' +
+                                puskesmas.map(h =>
+                                    `<li><span>${h.name}</span>
+                                    <a href='https://wa.me/${h.whatsapp}' class='call-btn' target='_blank' title='WhatsApp ${h.name}'><i class='fab fa-whatsapp'></i></a></li>`
+                                ).join('');
+                        }
                     },
                     {timeout: 5000}
                 );
             } else {
-                hospitalList.innerHTML = '<li>Browser tidak mendukung lokasi. Tampilkan semua rumah sakit.</li>' +
-                    hospitals.map(h =>
-                        `<li><span>${h.name}</span>
-                        <a href='https://wa.me/${h.whatsapp}' class='call-btn' target='_blank' title='WhatsApp ${h.name}'><i class='fab fa-whatsapp'></i></a></li>`
-                    ).join('');
+                const puskesmas = hospitals.filter(h => h.type === 'Puskesmas');
+                if (puskesmas.length === 0) {
+                    hospitalList.innerHTML = '<li>Tidak ada data puskesmas.</li>';
+                } else {
+                    hospitalList.innerHTML = '<li>Browser tidak mendukung lokasi. Tampilkan semua puskesmas.</li>' +
+                        puskesmas.map(h =>
+                            `<li><span>${h.name}</span>
+                            <a href='https://wa.me/${h.whatsapp}' class='call-btn' target='_blank' title='WhatsApp ${h.name}'><i class='fab fa-whatsapp'></i></a></li>`
+                        ).join('');
+                }
             }
     </script>
 
