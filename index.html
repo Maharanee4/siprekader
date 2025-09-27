@@ -117,6 +117,37 @@ body.blocked .popup-overlay {
 
 </body>
     <!-- Floating Call Center Button & Panel (Kiri Bawah) -->
+    <!-- Floating Windy Button (Kanan Bawah) -->
+    <style>
+        .floating-windy-btn {
+            position: fixed;
+            right: 100px;
+            bottom: 32px;
+            z-index: 1200;
+            background: #00bcd4;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            box-shadow: 0 4px 16px rgba(0,188,212,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .floating-windy-btn:hover {
+            background: #008ba3;
+        }
+        @media (max-width: 600px) {
+            .floating-windy-btn { right: 80px; bottom: 16px; }
+        }
+    </style>
+    <a class="floating-windy-btn" id="windyBtn" href="https://www.windy.com/id/-Hujan-guntur-rain?rain,-4.555,101.795,6" target="_blank" title="Cek Cuaca di Windy">
+        <i class="fas fa-cloud-sun"></i>
+    </a>
     <style>
         .floating-call-btn {
             position: fixed;
